@@ -1,8 +1,21 @@
+body {
+  /* background-image: url('./shack_edited.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: 100%; */
+  
+ 
+}
+
 .container{
   width: 70%;
   margin: auto;
-  margin-top: 2%;
+  margin-top: 3%;
   text-align: center;
+}
+
+.jumbotron {
+    background: none
 }
 
 th{
@@ -13,3 +26,26 @@ img{
   width: 40px;
   height: auto;
 }
+
+canvas {
+  position: absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  z-index: -1;
+}
+
+.hidden {
+  display: none;
+}
+
+/* #city {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 100vh;
+} */
+
