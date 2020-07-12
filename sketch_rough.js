@@ -15,60 +15,75 @@ let started = false;
 const container = document.getElementById('info');
 
 function preload() {
-    // Load sun picture
+    // shack  = loadImage('shack_edited.jpg');
     sun = loadImage("sun.png");
 
 }
 
 function setup() {
-    // Create canvas
+    // let elt = document.querySelector('body');
+
+    // console.log(`${elt.style.width}, ${elt.style.height}`);
+    console.log(displayWidth)
+
     canvas = createCanvas(displayWidth, displayHeight + 234.72);
-    // Place canvas under div id=info
     canvas.parent(container);
-    // Hide canvas
     canvas.addClass('hidden');
 
-    // Create 1000 rain drops
+    canvas.position(0,0);
+
+
+    // canvas = createCanvas(displayWidth, displayHeight);
+    // canvas.style('z-index', '-1')
+
+    // const h2 = createElement('h2', 'im an h2 p5.element!');
+    // h2.center("horizontal");
+
+
+    // tint(50, 100, 300); // Tint blue
+
     for (let i = 0; i < 1000; i++) {
         rainDrops[i] = new Rain();
     }
 
-    // Create 15 clouds
     for (let i = 0; i < 15; i++) {
         clouds[i] = new Cloud();
     }
+
+    // for (let i = 0; i < numClouds; i++) {
+    //     clouds[i] = new Cloud();
+    // }
+
+    // button = createButton('submit');
+    // button.mousePressed(submitForm);
     
 }
   
 function draw() {
-    // Clear the canvas
     clear();
-    // Set background color to 240 grayscale integer value
+    // image(shack);
+    // background(shack);
     background(240);
 
-    // Determine the type of weather animation
+    // if (started) {
+    //     rainShower();
+    // }
+
     switch (weather) {
         case 'rain':
-            // Delay animation
             if (time !== 100) {
                 time += 1;
             } else {
-                // Make canvas visible
                 canvas.removeClass('hidden');
-                // Run rain animation
                 rainShower();
             } 
             break;
         case 'sun':
-            // Delay animation
             if (time !== 100) {
                 time += 1;
             } else {
-                // Make canvas visible
                 canvas.removeClass('hidden');
-                // Run sunshine animation
                 sunshine();
-                // Run clouds animation
                 drawClouds();
             } 
             break;
@@ -77,27 +92,27 @@ function draw() {
     }
     
 }
-// Sunshine animation
+
+// function windowResized() {
+//     resizeCanvas(1264, 939);
+// }
+
 function sunshine() {
-    // Create sun image
     image(sun,0,y,200,200);
-    // Move sun to (0, -50) .5 at a time
+
     if (y !== -50) {
         y += .5;
     }
 
-    // If feelsLike is hot
     if (hot) {
-        // Set ellipseMode to radius
         ellipseMode(RADIUS);
-        // 
         fill(255,245,125,10); 
-
-        // disable stroke outline
+        noStroke()
+        ellipse(0, y, 80, 80);
+        fill(255,245,125,20); 
+        ellipse(0, y, 100, 100)
         noStroke();
-        // Paint background this color
         fill(200, 130, 10, 20);
-        // Draw sun rays
         ellipse(100, y+100, (frameCount % 500)*2, (frameCount % 500)*2);
         ellipse(100, y+100, (frameCount % 500)*4, (frameCount % 500)*4);
         ellipse(100, y+100, (frameCount % 500)*8, (frameCount % 500)*8);
@@ -105,7 +120,7 @@ function sunshine() {
         ellipse(100, y+100, (frameCount % 500)*24, (frameCount % 500)*24);
     }
 }
-// Rain animation
+
 function rainShower() {
     for (let i = 0; i < rainDrops.length; i++) {
         rainDrops[i].show();
@@ -113,18 +128,25 @@ function rainShower() {
         // rainDrops[i].edges();
     }
 }
-// Rain class
+
 class Rain {
     constructor() {
-        // x, y, z coordinates of drop
+        // x and y coordinates of drop
         this.x = random(width);
         this.y = random(-500, -10);
+
         this.z = random(0, 10);
         this.size = map(this.z, 0, 20, 5, 20);
         this.yspeed = map(this.z, 0, 20, 3, 10);
         this.grav = map(this.z, 0, 20, 0.025, 0.2);
     }
-    // Rain fall function
+
+    // edges() {
+    //     if (this.x == 500 && this.y == 500) {
+    //         this.yspeed = -this.yspeed;
+    //     }
+    // }
+    
     fall() {
         this.y = this.y + this.yspeed;
         this.speed = this.speed + this.grav
@@ -134,20 +156,20 @@ class Rain {
             this.speed = map(this.z, 0, 20, 4, 10);
         }
     }
-    // Draw Rain
+
     show() {
         stroke(175, 195, 204);
         line(this.x, this.y, this.x, this.y + this.size);
     }
 }
-// Draw clouds
+
 function drawClouds() {
     for (let i = 0; i < clouds.length; i++) {
         clouds[i].move();
         clouds[i].display();
     }
 }
-// Cloud class
+
 class Cloud {
     constructor() {
       this.x = random(-1000, -100);
@@ -195,21 +217,17 @@ https://api.openweathermap.org/data/2.5/onecall?lat=29.749907&lon=-95.358421&exc
 */
 
 // Get location
-const getLocation = async () => {
+const getData = async () => {
     try {
-        // If there's an input value
         if (cityInput.value) {
-            // Make fetch call to weather api
             const response = await fetch(`${url}/weather?q=${cityInput.value}&appid=${API_KEY}`);
-            // If city searched is bad
+
             if (response.status === 404) {
-                // Put warning
                 paragraph.innerHTML = 'City does not exist! Please enter the city again.';
             }
     
             return response.json();
         } else {
-            // If city search is empty
             paragraph.innerHTML = "Please enter the name of a city!";
         }
     } catch (e) {
@@ -220,7 +238,6 @@ const getLocation = async () => {
 // Get weather data
 const getWeather = async ({coord: { lat, lon }}) => {
     try {
-        // Fetch call to weather api
         const response = await fetch(`${url}/onecall?lat=${lat}&lon=${lon}&exclude=current,minutely,hourly&appid=${API_KEY}&units=imperial`);
 
         return response.json();
@@ -228,85 +245,90 @@ const getWeather = async ({coord: { lat, lon }}) => {
         console.log(e.message);
     }
 } 
-// Convert time from unix to formatted time
+
+// function generateTable(table, array) {
+//     for (let item of array) {
+//         console.log(item);
+//         let row = table.insertRow();
+//         for (key in item) {
+//             console.log(key);
+//             console.log(item[key]);
+//           let cell = row.insertCell();
+//           if (key == 'icon') {
+//               let img = document.createElement('IMG');
+//               img.setAttribute('src', `http://openweathermap.org/img/wn/${one.weather[0].icon}@2x.png`);
+//               cell.appendChild(img);
+
+//           } else {
+//             let text = document.createTextNode(item[key]);
+//             cell.appendChild(text);
+//           }
+          
+//         }
+//       }
+//   }
+
 function timeConverter(timestamp) {
-    // Change timestamp to formatted time
     var formattedTime = moment.unix(timestamp);
 
     return formattedTime.format('MMMM Do YYYY, h:mm:ss a');
 }
-// Submit button eventListener
+
 submitBtn.addEventListener('click', submitInput);
-// Enter key eventListener
 cityInput.addEventListener('keydown', (e) => {
-    // If enter is pressed
     if (e.key === 'Enter') {
         submitInput();
     }
 })
-// Submit input function
+
 async function submitInput() {
     try {
         let array = [];
-        // Get city location
-        const response = await getLocation();
-        // If response is undefined
+        
+        const response = await getData();
+
         if (!response) {
             return;
         }
-        // Get weather information using city location
+ 
         const { daily } = await getWeather(response);
-        // Add day, temp_min, temp_max, humidity, feels_like, icon, description to an array
+ 
          for (let i = 0; i < 7; i++) {
              array.push({ 'Day': timeConverter(daily[i].dt), 'Temp/Humidity': `${daily[i].temp.min}\u00B0/ ${daily[i].temp.max}\u00B0/ ${daily[i].humidity}%`, 'Feels Like': `${daily[i].feels_like.day}\u00B0`,'Weather': `${daily[i].weather[0].icon} ${daily[i].weather[0].description}`});
          }
-         // If tableBody is not empty
+ 
          if (table.tBodies.length !== 0) {
-             // Remove tableBody
              table.removeChild(table.getElementsByTagName("tbody")[0]);
          }
-         // Hide paragraph
+ 
          paragraph.classList.add('hidden');
-         // Show table
          table.classList.remove('hidden');
-         // Create tableBody
          let tbody = table.createTBody();
-         // For each object in array
-         for (let object of array) {
-             // Insert a row inside tableBody
+ 
+         for (let item of array) {
              let row = tbody.insertRow();
-             // For each key in object
-             for (key in object) {
-                 // Insert cell inside row
+             for (key in item) {
                  let cell = row.insertCell();
-                 // If key is weather, add icon and description
                  if (key == 'Weather') {
-                     // Create icon from each object
-                     let icon = object[key].substr(0,object[key].indexOf(' '));
-                     // Create description from each object
-                     let weatherDesc = object[key].substr(object[key].indexOf(' ')+1);
-                     // Create image element
+                     let icon = item[key].substr(0,item[key].indexOf(' '));
+                     let weatherDesc = item[key].substr(item[key].indexOf(' ')+1);
                      let img = document.createElement('IMG');
-                     // Add img src for each object
                      img.setAttribute('src', `http://openweathermap.org/img/wn/${icon}@2x.png`);
-                     // Create text node with description
                      let text = document.createTextNode(weatherDesc);
-                    // Add img and description to cell
+ 
                      cell.appendChild(img);
                      cell.appendChild(text);
-                 } else { // If key isn't 'Weather'
-                     // Create textNode with object value
-                     let text = document.createTextNode(object[key]);
-                     // Add description to cell
+                 } else {
+                     let text = document.createTextNode(item[key]);
                      cell.appendChild(text);
                  }
              }
          }
-         // feelsLike, weatherDescription, weatherMain is determined from the first day in daily object
+ 
          feelsLike = daily[0].feels_like.day;
          weatherDescription = daily[0].weather[0].description;
          weatherMain = daily[0].weather[0].main;
-         // Check weather description to determine number of clouds
+ 
          switch (weatherDescription) {
              case 'clear sky':
                  numClouds = 100;
@@ -324,7 +346,7 @@ async function submitInput() {
                  numClouds = 20;
                  break;
          }
-         // Check weather main to see if it's raining
+
          switch (weatherMain) {
             case 'Thunderstorm':
                 weather = 'rain';
@@ -336,7 +358,7 @@ async function submitInput() {
                 weather = 'rain';
                 break;
          }
-         // Check if feelsLike is hot
+ 
          if (feelsLike >= 90) {
              weather = 'sun';
              hot = true;
@@ -349,3 +371,57 @@ async function submitInput() {
          console.log(e.message);
      }
 }
+
+// async function submitForm() {
+//     try {
+//         let array = [];
+ 
+//         const response = await getData();
+//      //    const { list: [one, two, three, four, five, six, seven] } = await getWeather(response);
+//      //    const {list: [one, two, three, four, five, six, seven] } = await getWeather(response);
+//      //    let { dt_txt, main: {temp_min, temp_max}, weather } = one;
+//      //    let array = [{day: dt_txt, min: temp_min, max: temp_max, icon: weather[0].icon}]
+ 
+//      const { list } = await getWeather(response);
+ 
+ 
+ 
+//      for (let i = 0; i < 7; i++) {
+//          array.push({ day: list[i].dt_txt, min: list[i].main.temp_min, max: list[i].main.temp_max, icon: list[i].weather[0].icon});
+//      }
+ 
+//      if (table.tBodies.length !== 0) {
+//          table.removeChild(table.getElementsByTagName("tbody")[0]);
+//      }
+ 
+//      paragraph.classList.add('hidden');
+//      table.classList.remove('hidden');
+//      let tbody = table.createTBody();
+ 
+//      // day.innerHTML = one.dt_txt;
+//      // min.innerHTML = one.main.temp_min;
+//      // max.innerHTML = one.main.temp_max;
+//      // icon.setAttribute('src', `http://openweathermap.org/img/wn/${one.weather[0].icon}@2x.png`);
+ 
+//      for (let item of array) {
+//          let row = tbody.insertRow();
+//          for (key in item) {
+//              let cell = row.insertCell();
+//              if (key == 'icon') {
+//                  let img = document.createElement('IMG');
+//                  img.setAttribute('src', `http://openweathermap.org/img/wn/${item[key]}@2x.png`);
+//                  cell.appendChild(img);
+//              } else {
+//                  let text = document.createTextNode(item[key]);
+//                  cell.appendChild(text);
+//              }
+//          }
+//      }
+
+//      started = true;
+ 
+//          // generateTable(table, array);
+//     } catch (e) {
+//         console.log(e.message);
+//     }
+// }
